@@ -1,5 +1,6 @@
 {
-	"name": "com.unity.ShaderGraphPropertyRenamer",
+	"name": "com.unity.shadergraphpropertyrenamer",
+	"displayName": "ShaderGraph Property Renamer",
 	"version": "0.1.0",
 	"unity": "2019.3",
 	"description": "Allows renaming ShaderGraph properties and patch all materials using this shadergraph.",
