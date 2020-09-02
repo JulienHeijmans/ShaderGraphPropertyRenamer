@@ -13,4 +13,4 @@
 * Optionally all properties stored in the material, that are not present in the shader, can be cleaned up.
 * Keywords (Boolean and Enum) also get corrected in every materials.
 
-*![ShaderGraph Property Renamer Window.](images/Picture.png)*
+*![ShaderGraph Property Renamer Window.](Documentation/images/Picture.png)*
