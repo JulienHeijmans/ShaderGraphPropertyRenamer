@@ -157,6 +157,7 @@ namespace ShaderGraphPropertyRenamer
         {
             ui_PropertyListContainer = root.Query<VisualElement>("ObjectListContainer").First();
             ui_ObjectField_SelectedShader = root.Query<ObjectField>("ObjectField_SelectedShader").First();
+            ui_ObjectField_SelectedShader.objectType = typeof(Shader);
             ui_ObjectField_SelectedShader.value = m_shader;
             ui_ObjectField_SelectedShader.RegisterValueChangedCallback(e =>
             {
