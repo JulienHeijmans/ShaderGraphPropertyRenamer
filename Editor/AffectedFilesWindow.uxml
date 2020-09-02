@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement name="Root" style="flex-grow: 1;">
+        <ui:VisualElement name="FileListContainer" style="flex-grow: 1; min-height: 100px; border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-left-color: rgba(255, 255, 255, 0.15); border-right-color: rgba(255, 255, 255, 0.15); border-top-color: rgba(255, 255, 255, 0.15); border-bottom-color: rgba(255, 255, 255, 0.15); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; margin-left: 5px; margin-right: 5px; background-color: rgba(0, 0, 0, 0.19); margin-top: 5px;" />
+        <ui:VisualElement style="flex-direction: row; margin-top: 5px;">
+            <ui:Button text="Refresh" name="Button_Refresh" style="margin-left: 5px; margin-right: 1px; margin-top: -1px; margin-bottom: 3px;" />
+            <ui:Button text="Checkout All Files" name="Button_Checkout" style="margin-left: 1px; margin-right: 1px; margin-top: -1px; margin-bottom: 3px;" />
+            <ui:Button text="Lock All Files" name="Button_Lock" style="margin-left: 1px; margin-right: 1px; margin-top: -1px; margin-bottom: 3px;" />
+            <ui:VisualElement style="margin-left: 5px; margin-right: 5px; margin-top: 0; margin-bottom: 4px; flex-wrap: nowrap; flex-grow: 1; flex-shrink: 0; flex-direction: column; align-items: auto;">
+                <ui:VisualElement style="flex-direction: column; flex-grow: 1;">
+                    <ui:VisualElement />
+                    <ui:VisualElement style="flex-direction: row; flex-grow: 0; justify-content: flex-end; height: 20px;">
+                        <ui:Label text="Total File Count" style="margin-right: 3px;" />
+                        <ui:Label text="0" name="Label_TotalFileCount" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

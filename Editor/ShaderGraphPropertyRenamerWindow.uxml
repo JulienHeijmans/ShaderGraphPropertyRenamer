@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement name="Root" style="flex-grow: 1;">
+        <ui:VisualElement style="flex-direction: row; margin-left: 5px; margin-top: 5px;">
+            <uie:ObjectField label="ShaderGraph:" type="UnityEngine.Shader, UnityEngine.CoreModule" name="ObjectField_SelectedShader" style="flex-grow: 1; flex-shrink: 1; flex-basis: 0;" />
+            <ui:Button text="Reset" name="Button_Reset" />
+            <ui:Button text="Refresh Shader" name="Button_Refresh" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-direction: row; margin-left: 5px; margin-top: 2px; margin-bottom: 3px;">
+            <ui:Toggle name="Toggle_DisplayHiddenAttributes" value="false" />
+            <ui:Label text="Show Hidden Properties" />
+            <ui:Label text="(Warning: Hidden properties are modified)" name="Label_WarningHiddenModified" style="color: rgb(202, 56, 56); display: none;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="ObjectListContainer" style="flex-grow: 1; min-height: 100px; border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-left-color: rgba(255, 255, 255, 0.15); border-right-color: rgba(255, 255, 255, 0.15); border-top-color: rgba(255, 255, 255, 0.15); border-bottom-color: rgba(255, 255, 255, 0.15); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; margin-left: 5px; margin-right: 5px; background-color: rgba(0, 0, 0, 0.19);">
+            <ui:VisualElement name="TitleBar" style="height: 20px; overflow: hidden; background-color: rgb(60, 60, 60); border-bottom-width: 1px; border-bottom-color: rgba(255, 255, 255, 0.18); flex-direction: row;">
+                <ui:Label text="Reference Name&#10;" style="flex-grow: 1; flex-basis: 0; padding-left: 7px; -unity-font-style: bold;" />
+                <ui:Label text="New Reference Name" style="flex-grow: 1; flex-basis: 0; align-items: auto; padding-left: 5px; -unity-font-style: bold;" />
+                <ui:Label text="New Display Name" style="flex-grow: 1; flex-basis: 0; padding-left: 5px; -unity-font-style: bold;" />
+            </ui:VisualElement>
+            <ui:Label text="The selected shader is not a ShaderGraph." name="Label_NormalShaderSelected" style="-unity-text-align: middle-center; font-size: 15px; -unity-font-style: bold; flex-grow: 1; flex-direction: column; display: none;" />
+        </ui:VisualElement>
+        <ui:Button text="clear" name="Button_Clear" style="position: absolute; bottom: 192px; right: 5px; font-size: 8px; display: none;" />
+        <ui:VisualElement />
+        <ui:VisualElement style="margin-left: 5px; margin-right: 5px; margin-top: 3px; margin-bottom: 4px; flex-wrap: nowrap; flex-grow: 0; flex-shrink: 0; flex-direction: column; align-items: auto;">
+            <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
+                <ui:VisualElement style="flex-direction: row;">
+                    <ui:Toggle name="Toggle_ClearMaterialProperties" tooltip="Strip from ALL materials using the selected shader, saved properties that are not present in the shader." />
+                    <ui:Label text="Clear all unused material properties " tooltip="Strip from ALL materials using the selected shader, saved properties that are not present in the shader." />
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-direction: row; flex-grow: 1; justify-content: flex-end;">
+                    <ui:Label text="Modified Properties:" style="margin-right: 3px;" />
+                    <ui:Label text="0" name="Label_ModifiedCount" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row;">
+                <ui:Label text="Materials using this shader:" style="margin-right: 3px;" />
+                <ui:Label text="0" name="Label_MaterialCount" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-direction: row; height: 40px; margin-left: 5px; margin-right: 5px; margin-top: -1px; margin-bottom: 3px;">
+            <ui:Button text="Apply changes" name="Button_Apply" style="height: 40px; flex-grow: 1; flex-basis: 0; margin-left: 0; margin-right: 2px;" />
+            <ui:VisualElement style="width: 150px; flex-shrink: 0; max-width: 200px; height: 40px;">
+                <ui:Button text="Display all affected files" name="Button_FileList" style="flex-grow: 1; flex-basis: 0; margin-right: 0; margin-left: 0; margin-top: 1px; margin-bottom: 1px;" />
+                <ui:VisualElement style="flex-grow: 1; flex-direction: row; flex-basis: 0; margin-top: 1px;">
+                    <ui:Button text="CheckOut" name="Button_Checkout" tooltip="CheckOut all affected files into a new ChangeList." style="flex-grow: 1; flex-basis: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                    <ui:Button text="Lock" name="Button_Lock" tooltip="Lock all affected files into a new ChangeList." style="flex-grow: 1; flex-basis: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

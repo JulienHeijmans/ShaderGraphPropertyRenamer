@@ -1,0 +1,238 @@
+.FunctionToggle {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.23);
+    border-right-color: rgba(0, 0, 0, 0.23);
+    border-top-color: rgba(0, 0, 0, 0.23);
+    border-bottom-color: rgba(0, 0, 0, 0.23);
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin-top: 5px;
+    overflow: visible;
+    padding-top: 10px;
+    flex-direction: column;
+    height: auto;
+    flex-grow: 0;
+    max-height: none;
+    min-height: auto;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+    margin-right: 4px;
+    min-width: 103px;
+}
+
+.FunctionToggle > Label {
+    position: absolute;
+    left: 15px;
+    top: -6px;
+    background-color: rgb(53, 53, 53);
+    padding-left: 12px;
+    font-size: 10px;
+    flex-direction: column;
+    max-width: none;
+    min-width: auto;
+    min-height: auto;
+    padding-right: 4px;
+}
+
+#Root {
+    background-color: rgb(53, 53, 53);
+}
+
+.FunctionToggle > VisualElement.unity-toggle__input {
+    position: absolute;
+    top: -6px;
+    left: 6px;
+}
+
+Label {
+    min-width: auto;
+    min-height: auto;
+    max-width: none;
+    max-height: none;
+}
+
+.FunctionToggle TextField TextInput {
+    height: 17px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.propertyLine {
+    flex-direction: row;
+    font-size: 10px;
+    height: 20px;
+    align-items: center;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+    overflow: visible;
+    border-width: 0 0 0 12px;
+    padding-left: 0px;
+    padding-right: 17px;
+}
+
+.propertyLine.modified{    
+    border-color: rgb(96, 182, 255);
+}
+
+.propertyLabelContainer > Label {
+    flex-grow: 1;
+    flex-basis: 0;
+    overflow: hidden;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+.propertyLine.modified.duplicate,.propertyLine.duplicate {
+    border-color: rgb(255, 56, 56);
+}
+
+.propertyLine.duplicate TextField.newReferenceField>TextInput{
+    border-color: rgb(255, 56, 56);
+}
+
+.propertyLine.even {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.propertyLine:hover,.propertyLine.even:hover{
+    background-color: rgba(120, 209, 255, 0.3);
+}
+
+.propertyLine > TextField {
+    max-height: none;
+    min-height: auto;
+    height: 16px;
+    overflow: hidden;
+    flex-grow: 1;
+    flex-basis: 0;
+    
+}
+.propertyLine > TextField.modified>TextInput{
+    -unity-font-style: bold;
+    border-top-color: rgba(96, 182, 255,0.55);
+    border-right-color: rgba(96, 182, 255,0.65);
+    border-left-color: rgba(96, 182, 255,0.65);
+    border-bottom-color: rgba(96, 182, 255,0.85);
+}
+
+.propertyLabelContainer  > .hiddenLabel{
+    display: none;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 8px;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: #888888;
+    flex-grow: 0;
+    min-width: 34px;    
+}
+.hiddenProperty>.propertyLabelContainer> .hiddenLabel{
+    display: flex;
+}
+.propertyLabelContainer{
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-direction: row;
+}
+
+TextElement {
+    flex-grow: 1;
+}
+
+
+.invalid > TextInput {
+    color: rgb(202, 28, 28);
+}
+
+
+
+.shortTextField {
+    flex-grow: 1;
+}
+
+.shortTextField > .unity-label {
+    flex-grow: 1;
+}
+
+.shortTextField > .unity-base-field__input {
+    flex-grow: 0;
+    width: 18px;
+    -unity-text-align: upper-center;
+}
+
+.longTextField {
+    flex-grow: 1;
+}
+
+.longTextField > .unity-label {
+    flex-grow: 0;
+    width: 43px;
+}
+
+.longTextField > .unity-base-field__input {
+    width: 12px;
+    flex-grow: 1;
+}
+
+.duplicate > .newName {
+    color: rgba(209, 106, 106, 255);
+}
+
+.duplicateWarning {
+    width: 15px;
+    height: 15px;
+    background-image: url('/Assets/_Test/JulienH/Scripts/Editor/BatchRenamer/warning-icon.png');
+    display: none;
+    position: absolute;
+    right: 2px;
+}
+
+.assetIcon {
+    width: 15px;
+    height: 15px;
+}
+
+
+.duplicate .duplicateWarning {
+    display: flex;
+}
+.fileListElement{
+    flex-direction: row;
+    padding: 0 5px 0 5px;
+}
+.fileListElement{
+    flex-direction: row;
+    padding: 2px 5px 2px 5px;
+}
+.fileListElement>.fileIcon{
+    width: 25px;
+}
+.fileListElement.warning>.duplicateWarning{
+    display: flex;
+}
+.resetLine{
+    display: none;
+    position: absolute;
+    width: 12px;
+    left:-12px;   
+    padding-left: 2px;
+}
+.propertyLine.modified>.resetLine{
+    display: flex;
+    border-width: 0;
+    background-color: rgba(0, 0,0, 0);
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 15px;
+}
+.propertyLine.modified>.resetLine:hover{
+    -unity-font-style: bold;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255,255, 0.3);
+
+}
