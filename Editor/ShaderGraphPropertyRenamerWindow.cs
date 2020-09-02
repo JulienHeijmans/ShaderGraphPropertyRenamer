@@ -616,7 +616,7 @@ namespace ShaderGraphPropertyRenamer
             var shaderPath = AssetDatabase.GetAssetPath(m_shader);
             
             var modifiedProperties = m_ShaderProperties.Where(p => p.isModified).ToList();
-            Debug.Log("Modifies properties:"+modifiedProperties.Count());
+            //Debug.Log("Modifies properties:"+modifiedProperties.Count());
             
             string[] lines = System.IO.File.ReadAllLines(shaderPath);
             
@@ -629,7 +629,6 @@ namespace ShaderGraphPropertyRenamer
             {
                 if (lines[i].IndexOf(" \"JSONnodeData\": \"{\\n    \\\"m_Guid\\\"") > 0) //SG previous to 10.0
                 {
-                    Debug.Log("Property Found1");
                     foreach (var property in modifiedProperties)
                     {
                         string propertyReference = property.isToggle ? property.Reference + "_ON" : property.Reference;
@@ -641,10 +640,10 @@ namespace ShaderGraphPropertyRenamer
                             //Setting override Reference
                             if (property.referenceModified)
                             {
-                                Debug.Log("->property.referenceModified");
+                                //Debug.Log("->property.referenceModified");
                                 if (lines[i].IndexOf("\\\"m_OverrideReferenceName\\\": \\\"\\\"", StringComparison.Ordinal) > 0)
                                 {
-                                    Debug.Log("-> Found reference with default name.");
+                                    //Debug.Log("-> Found reference with default name.");
                                     lines[i] = lines[i].Replace(
                                         oldValue:"\\\"m_OverrideReferenceName\\\": \\\"\\\"",
                                         newValue:"\\\"m_OverrideReferenceName\\\": \\\""+property.NewReference+"\\\""
@@ -656,11 +655,11 @@ namespace ShaderGraphPropertyRenamer
                                         oldValue:"\\\"m_OverrideReferenceName\\\": \\\""+propertyReference+"\\\"",
                                         newValue:"\\\"m_OverrideReferenceName\\\": \\\""+property.NewReference+"\\\""
                                     );
-                                    Debug.Log("-> Found reference with overriden name.");
+                                    //Debug.Log("-> Found reference with overriden name.");
                                 }
                                 else
                                 {
-                                    Debug.Log("-> Fail. line: " + lines[i]);
+                                    //Debug.Log("-> Fail. line: " + lines[i]);
                                     renameError = true;
                                 }
 
@@ -670,7 +669,7 @@ namespace ShaderGraphPropertyRenamer
                             {
                                 if (lines[i].IndexOf("\\\"m_Name\\\": \\\""+property.Name+"\\\"", StringComparison.Ordinal) > 0)
                                 {
-                                    Debug.Log("-> Name modified.");
+                                    //Debug.Log("-> Name modified.");
                                     lines[i] = lines[i].Replace(
                                         oldValue:"\\\"m_Name\\\": \\\""+property.Name+"\\\"",
                                         newValue:"\\\"m_Name\\\": \\\""+property.NewName+"\\\""
@@ -686,7 +685,7 @@ namespace ShaderGraphPropertyRenamer
                 //SG 10.0 and newer
                 else if (lines[i].IndexOf("m_OverrideReferenceName") > 0 || lines[i].IndexOf("m_DefaultReferenceName") > 0)
                 {
-                    Debug.Log("Property Found2");
+                    //Debug.Log("Property Found2");
                     foreach (var property in modifiedProperties)
                     {
                         string propertyReference = property.isToggle ? property.Reference + "_ON" : property.Reference;
@@ -694,29 +693,29 @@ namespace ShaderGraphPropertyRenamer
                             property.isToggle ? property.NewReference + "_ON" : property.NewReference;
                         if (lines[i].IndexOf("\"" + propertyReference + "\"") > 0)
                         {
-                            Debug.Log("Property Found:" + propertyReference);
+                            //Debug.Log("Property Found:" + propertyReference);
                             if (lines[i].IndexOf("m_DefaultReferenceName") > 0)
                             {
                                 //Setting override Reference
                                 if (property.referenceModified)
                                 {
-                                    Debug.Log("->property.referenceModified");
+                                    //Debug.Log("->property.referenceModified");
                                     if (lines[i + 1].IndexOf("\"\",", StringComparison.Ordinal) > 0)
                                     {
                                         lines[i + 1] = lines[i + 1].Replace("\"\",",
                                             "\"" + propertyNewReference + "\",");
-                                        Debug.Log("-> Reference modified.");
+                                        //Debug.Log("-> Reference modified.");
                                     }
                                     else if (lines[i + 1].IndexOf("\"" + propertyReference + "\"",
                                                  StringComparison.CurrentCulture) > 0)
                                     {
                                         lines[i + 1] = lines[i + 1].Replace("\"" + propertyReference + "\"",
                                             "\"" + propertyNewReference + "\"");
-                                        Debug.Log("-> Reference modified.");
+                                        //Debug.Log("-> Reference modified.");
                                     }
                                     else
                                     {
-                                        Debug.Log("-> Fail. line: " + lines[i + 1]);
+                                        //Debug.Log("-> Fail. line: " + lines[i + 1]);
                                         renameError = true;
                                     }
 
@@ -727,7 +726,7 @@ namespace ShaderGraphPropertyRenamer
                                 {
                                     if (lines[i - 1].IndexOf(property.Name) > 0)
                                     {
-                                        Debug.Log("-> Name modified.");
+                                        //Debug.Log("-> Name modified.");
                                         lines[i - 1] = lines[i - 1].Replace(property.Name, property.NewName);
                                     }
                                     else
@@ -741,7 +740,7 @@ namespace ShaderGraphPropertyRenamer
                                 {
                                     lines[i] = lines[i].Replace("\"" + propertyReference + "\"",
                                         "\"" + propertyNewReference + "\"");
-                                    Debug.Log("-> Reference modified.");
+                                    //Debug.Log("-> Reference modified.");
                                 }
 
                                 //Replacing Display Name
@@ -759,7 +758,7 @@ namespace ShaderGraphPropertyRenamer
                             else
                             {
                                 renameError = true;
-                                Debug.Log("Property Reference not found in ShaderGraph file: " + propertyReference);
+                                //Debug.Log("Property Reference not found in ShaderGraph file: " + propertyReference);
                             }
 
                             modifiedProperties.Remove(property);
