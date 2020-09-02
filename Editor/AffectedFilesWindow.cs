@@ -170,6 +170,7 @@ namespace ShaderGraphPropertyRenamer
             
             m_ListView=new ListView(m_ObjectList, itemHeight, makeItem, bindItem);
             m_ListView.selectionType = SelectionType.Multiple;
+#if UNITY_2020_1_OR_NEWER
             m_ListView.onItemsChosen += obj => Selection.activeObject=(Object)obj.First();
             m_ListView.onSelectionChange += objects =>
             {
@@ -177,6 +178,17 @@ namespace ShaderGraphPropertyRenamer
                 
                 Selection.objects = selectionList.ToArray();
             };
+            
+#else
+            m_ListView.onItemChosen += obj => Selection.activeObject=(Object)obj;
+            m_ListView.onSelectionChanged += objects =>
+            {
+                List<Object> selectionList=(from obj in objects select obj as Object).ToList();
+                
+                Selection.objects = selectionList.ToArray();
+            };
+#endif
+            
             m_ListView.style.flexGrow = 1.0f;
             ui_FileListContainer.Add(m_ListView);
 
