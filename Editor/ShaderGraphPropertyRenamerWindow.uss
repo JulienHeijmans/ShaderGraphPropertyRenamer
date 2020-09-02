@@ -187,7 +187,7 @@ TextElement {
 .duplicateWarning {
     width: 15px;
     height: 15px;
-    background-image: url('/Assets/_Test/JulienH/Scripts/Editor/BatchRenamer/warning-icon.png');
+    background-image: url('Icons/warning-icon.png');
     display: none;
     position: absolute;
     right: 2px;

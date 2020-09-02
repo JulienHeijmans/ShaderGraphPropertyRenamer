@@ -1,22 +1,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using ICSharpCode.NRefactory.Ast;
-using Newtonsoft.Json.Linq;
-using NUnit.Framework.Constraints;
-using UnityEditor.Build.Pipeline.Tasks;
-using UnityEditor.Rendering;
-using UnityEditor.Rendering.HighDefinition;
 using UnityEditor.UIElements;
 using UnityEditor.VersionControl;
-using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace ShaderGraphPropertyRenamer
@@ -37,6 +27,8 @@ namespace ShaderGraphPropertyRenamer
         private List<Object> m_ObjectList;
         private List<Asset> m_AssetList;
         private ListView m_ListView;
+        private bool m_HasLockingSupport = false;
+
         private bool m_initiated=false;
         public static AffectedFilesWindow Instance;
         public bool IsOpen
@@ -60,12 +52,18 @@ namespace ShaderGraphPropertyRenamer
                 m_AssetList=new List<Asset>();
             this.titleContent=new GUIContent("Affected Files");
             this.minSize = new Vector2(415, 350);
-            string scriptPath = A2ContentUtility.GetScriptPath("AffectedFilesWindow");
+            string scriptPath = Utility.GetScriptPath("AffectedFilesWindow");
             VisualTreeAsset uiAsset =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(scriptPath + "AffectedFilesWindow.uxml");
             var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(scriptPath + "ShaderGraphPropertyRenamerWindow.uss");
             VisualElement ui = uiAsset.CloneTree();
             ui.style.flexGrow = 1f;
+            
+            Type providerType = typeof(Provider);
+            m_HasLockingSupport = providerType.GetProperty("hasLockingSupport") != null;
+            if (m_HasLockingSupport)
+                m_HasLockingSupport = (bool) typeof(Provider).GetProperty("hasLockingSupport").GetValue(null);
+            
             root = rootVisualElement;
             root.style.flexGrow = 1;
             root.Add(ui);
@@ -172,7 +170,6 @@ namespace ShaderGraphPropertyRenamer
             
             m_ListView=new ListView(m_ObjectList, itemHeight, makeItem, bindItem);
             m_ListView.selectionType = SelectionType.Multiple;
-
             m_ListView.onItemsChosen += obj => Selection.activeObject=(Object)obj.First();
             m_ListView.onSelectionChange += objects =>
             {
@@ -257,11 +254,11 @@ namespace ShaderGraphPropertyRenamer
                 ui_Button_Checkout.tooltip = Provider.hasCheckoutSupport
                     ? "Check Out all the affected files (The selected shader and all the materials using it)"
                     : "The current version control does not support file checkout";
-
-                ui_Button_Lock.SetEnabled(Provider.hasLockingSupport);
-                ui_Button_Lock.tooltip = Provider.hasLockingSupport
-                    ? "Lock all the affected files (The selected shader and all the materials using it)"
-                    : "The current version control does not support file locking";
+                
+                ui_Button_Lock.SetEnabled(m_HasLockingSupport);
+                ui_Button_Lock.tooltip = m_HasLockingSupport ? 
+                    "Lock all the affected files (The selected shader and all the materials using it)" 
+                    : "File locking is not supported by the current Version Control, or by this Unity version (Supported with 2020.2 or newer).";
             }
 
             if (m_renamerWindow != null && !remote)

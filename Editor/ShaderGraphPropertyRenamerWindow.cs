@@ -8,8 +8,9 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using System.IO;
 using System.Linq;
+using NUnit.Framework.Constraints;
 using UnityEditor.Rendering;
-using UnityEditor.Rendering.HighDefinition;
+//using UnityEditor.Rendering.HighDefinition;
 using UnityEditor.UIElements;
 using UnityEditor.VersionControl;
 using UnityEngine.Rendering;
@@ -66,6 +67,7 @@ namespace ShaderGraphPropertyRenamer
         [SerializeField]
         private bool m_clearUnusedProperties = false;
 
+        private bool m_HasLockingSupport = false;
         public Task m_VersionControlUpdate;
 
         public int ModifiedPropertyCount
@@ -119,7 +121,7 @@ namespace ShaderGraphPropertyRenamer
                 m_OverridenReferenceBackup=new DictionaryString();
             
             this.minSize = new Vector2(415, 350);
-            string scriptPath = A2ContentUtility.GetScriptPath("ShaderGraphPropertyRenamerWindow");
+            string scriptPath = Utility.GetScriptPath("ShaderGraphPropertyRenamerWindow");
             VisualTreeAsset uiAsset =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(scriptPath + "ShaderGraphPropertyRenamerWindow.uxml");
             var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(scriptPath + "ShaderGraphPropertyRenamerWindow.uss");
@@ -129,6 +131,11 @@ namespace ShaderGraphPropertyRenamer
             root.style.flexGrow = 1;
             root.Add(ui);
             root.styleSheets.Add(uss);
+            
+            Type providerType = typeof(Provider);
+            m_HasLockingSupport = providerType.GetProperty("hasLockingSupport") != null;
+            if (m_HasLockingSupport)
+                m_HasLockingSupport = (bool) typeof(Provider).GetProperty("hasLockingSupport").GetValue(null);
 
             InitUI();
             initiated = true;
@@ -609,7 +616,7 @@ namespace ShaderGraphPropertyRenamer
             var shaderPath = AssetDatabase.GetAssetPath(m_shader);
             
             var modifiedProperties = m_ShaderProperties.Where(p => p.isModified).ToList();
-            //Debug.Log("Modifies properties:"+modifiedProperties.Count());
+            Debug.Log("Modifies properties:"+modifiedProperties.Count());
             
             string[] lines = System.IO.File.ReadAllLines(shaderPath);
             
@@ -620,79 +627,144 @@ namespace ShaderGraphPropertyRenamer
             bool renameError=false;
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].IndexOf("m_OverrideReferenceName") < 0 && lines[i].IndexOf("m_DefaultReferenceName") < 0)
-                    continue;
-                
-                foreach (var property in modifiedProperties)
+                if (lines[i].IndexOf(" \"JSONnodeData\": \"{\\n    \\\"m_Guid\\\"") > 0) //SG previous to 10.0
                 {
-                    string propertyReference = property.isToggle ? property.Reference + "_ON" : property.Reference;
-                    string propertyNewReference = property.isToggle ? property.NewReference + "_ON" : property.NewReference;
-                    if (lines[i].IndexOf("\""+propertyReference+"\"") > 0)
+                    Debug.Log("Property Found1");
+                    foreach (var property in modifiedProperties)
                     {
-                        Debug.Log("Property Found:"+propertyReference);
-                        if (lines[i].IndexOf("m_DefaultReferenceName") > 0)
+                        string propertyReference = property.isToggle ? property.Reference + "_ON" : property.Reference;
+                        string propertyNewReference =
+                            property.isToggle ? property.NewReference + "_ON" : property.NewReference;
+
+                        if (lines[i].IndexOf("\\\"" + propertyReference + "\\\"") > 0)
                         {
                             //Setting override Reference
                             if (property.referenceModified)
                             {
                                 Debug.Log("->property.referenceModified");
-                                if (lines[i+1].IndexOf("\"\",", StringComparison.Ordinal)>0)
+                                if (lines[i].IndexOf("\\\"m_OverrideReferenceName\\\": \\\"\\\"", StringComparison.Ordinal) > 0)
                                 {
-                                    lines[i+1]=lines[i+1].Replace("\"\",", "\""+propertyNewReference+"\",");
-                                    Debug.Log("-> Reference modified.");
+                                    Debug.Log("-> Found reference with default name.");
+                                    lines[i] = lines[i].Replace(
+                                        oldValue:"\\\"m_OverrideReferenceName\\\": \\\"\\\"",
+                                        newValue:"\\\"m_OverrideReferenceName\\\": \\\""+property.NewReference+"\\\""
+                                    );
                                 }
-                                else if(lines[i+1].IndexOf("\""+propertyReference+"\"", StringComparison.CurrentCulture) > 0)
+                                else if (lines[i].IndexOf("\\\"m_OverrideReferenceName\\\": \\\""+propertyReference+"\\\"", StringComparison.Ordinal) > 0)
                                 {
-                                    lines[i+1]=lines[i+1].Replace("\""+propertyReference+"\"", "\""+propertyNewReference+"\"");
-                                    Debug.Log("-> Reference modified.");
+                                    lines[i] = lines[i].Replace(
+                                        oldValue:"\\\"m_OverrideReferenceName\\\": \\\""+propertyReference+"\\\"",
+                                        newValue:"\\\"m_OverrideReferenceName\\\": \\\""+property.NewReference+"\\\""
+                                    );
+                                    Debug.Log("-> Found reference with overriden name.");
                                 }
                                 else
                                 {
-                                    Debug.Log("-> Fail. line: "+lines[i+1]);
+                                    Debug.Log("-> Fail. line: " + lines[i]);
                                     renameError = true;
                                 }
-                                
+
                             }
                             //Replacing Display Name
                             if (property.nameModified)
                             {
-                                if (lines[i - 1].IndexOf(property.Name) > 0)
+                                if (lines[i].IndexOf("\\\"m_Name\\\": \\\""+property.Name+"\\\"", StringComparison.Ordinal) > 0)
                                 {
-                                    //Debug.Log("-> Name modified.");
-                                    lines[i - 1] = lines[i - 1].Replace(property.Name, property.NewName);
+                                    Debug.Log("-> Name modified.");
+                                    lines[i] = lines[i].Replace(
+                                        oldValue:"\\\"m_Name\\\": \\\""+property.Name+"\\\"",
+                                        newValue:"\\\"m_Name\\\": \\\""+property.NewName+"\\\""
+                                    );
                                 }
                                 else
                                     renameError = true;
                             }
-                        }
-                        else if (lines[i].IndexOf("m_OverrideReferenceName") > 0)
-                        {
-                            //Replacing Reference
-                            if (property.referenceModified)
-                            {
-                                lines[i]=lines[i].Replace("\""+propertyReference+"\"", "\""+propertyNewReference+"\"");
-                                Debug.Log("-> Reference modified.");
-                            }
-                            //Replacing Display Name
-                            if (property.nameModified)
-                            {
-                                if (lines[i - 2].IndexOf(property.Name) > 0)
-                                {
-                                    //Debug.Log("-> Name modified.");
-                                    lines[i - 2] = lines[i - 2].Replace(property.Name, property.NewName);
-                                }
-                                else
-                                    renameError = true;
-                            }
-                        }
-                        else
-                        {
-                            renameError = true;
-                            Debug.Log("Property Reference not found in ShaderGraph file: "+propertyReference);
                         }
                         
-                        modifiedProperties.Remove(property);
-                        break;
+                    }
+                }
+                //SG 10.0 and newer
+                else if (lines[i].IndexOf("m_OverrideReferenceName") > 0 || lines[i].IndexOf("m_DefaultReferenceName") > 0)
+                {
+                    Debug.Log("Property Found2");
+                    foreach (var property in modifiedProperties)
+                    {
+                        string propertyReference = property.isToggle ? property.Reference + "_ON" : property.Reference;
+                        string propertyNewReference =
+                            property.isToggle ? property.NewReference + "_ON" : property.NewReference;
+                        if (lines[i].IndexOf("\"" + propertyReference + "\"") > 0)
+                        {
+                            Debug.Log("Property Found:" + propertyReference);
+                            if (lines[i].IndexOf("m_DefaultReferenceName") > 0)
+                            {
+                                //Setting override Reference
+                                if (property.referenceModified)
+                                {
+                                    Debug.Log("->property.referenceModified");
+                                    if (lines[i + 1].IndexOf("\"\",", StringComparison.Ordinal) > 0)
+                                    {
+                                        lines[i + 1] = lines[i + 1].Replace("\"\",",
+                                            "\"" + propertyNewReference + "\",");
+                                        Debug.Log("-> Reference modified.");
+                                    }
+                                    else if (lines[i + 1].IndexOf("\"" + propertyReference + "\"",
+                                                 StringComparison.CurrentCulture) > 0)
+                                    {
+                                        lines[i + 1] = lines[i + 1].Replace("\"" + propertyReference + "\"",
+                                            "\"" + propertyNewReference + "\"");
+                                        Debug.Log("-> Reference modified.");
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("-> Fail. line: " + lines[i + 1]);
+                                        renameError = true;
+                                    }
+
+                                }
+
+                                //Replacing Display Name
+                                if (property.nameModified)
+                                {
+                                    if (lines[i - 1].IndexOf(property.Name) > 0)
+                                    {
+                                        Debug.Log("-> Name modified.");
+                                        lines[i - 1] = lines[i - 1].Replace(property.Name, property.NewName);
+                                    }
+                                    else
+                                        renameError = true;
+                                }
+                            }
+                            else if (lines[i].IndexOf("m_OverrideReferenceName") > 0)
+                            {
+                                //Replacing Reference
+                                if (property.referenceModified)
+                                {
+                                    lines[i] = lines[i].Replace("\"" + propertyReference + "\"",
+                                        "\"" + propertyNewReference + "\"");
+                                    Debug.Log("-> Reference modified.");
+                                }
+
+                                //Replacing Display Name
+                                if (property.nameModified)
+                                {
+                                    if (lines[i - 2].IndexOf(property.Name) > 0)
+                                    {
+                                        //Debug.Log("-> Name modified.");
+                                        lines[i - 2] = lines[i - 2].Replace(property.Name, property.NewName);
+                                    }
+                                    else
+                                        renameError = true;
+                                }
+                            }
+                            else
+                            {
+                                renameError = true;
+                                Debug.Log("Property Reference not found in ShaderGraph file: " + propertyReference);
+                            }
+
+                            modifiedProperties.Remove(property);
+                            break;
+                        }
                     }
                 }
                 
@@ -1237,11 +1309,12 @@ namespace ShaderGraphPropertyRenamer
                 ui_Button_Checkout.tooltip = Provider.hasCheckoutSupport ? 
                     "Check Out all the affected files (The selected shader and all the materials using it)" 
                     : "The current version control does not support file checkout";
+
+                ui_Button_Lock.SetEnabled(m_HasLockingSupport);
+                ui_Button_Lock.tooltip = m_HasLockingSupport ? 
+                        "Lock all the affected files (The selected shader and all the materials using it)" 
+                        : "File locking is not supported by the current Version Control, or by this Unity version (Supported with 2020.2 or newer).";
                 
-                ui_Button_Lock.SetEnabled(Provider.hasLockingSupport);
-                ui_Button_Lock.tooltip = Provider.hasLockingSupport ? 
-                    "Lock all the affected files (The selected shader and all the materials using it)" 
-                    : "The current version control does not support file locking";
             }
             if(m_affectedFileWindow!=null && !remote)
                 m_affectedFileWindow.CheckVersionControlStatus(true);
