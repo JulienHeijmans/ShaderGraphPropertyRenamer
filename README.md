@@ -5,7 +5,7 @@
 
 **File management and version control:**
 An additional window allows the user to see all files that would be affected by the change (So, the shader and every material using this shader) as well as their version control status.
-Some buttons allows the user to CheckOut and/or lock all the files
+Some buttons allows the user to Check Out and/or Lock all the files
 If some files are locked remotely by another user the operation will be canceled.
 
 **Note:** File locking is only available with Unity 2020.2 or later.
