@@ -595,7 +595,7 @@ namespace ShaderGraphPropertyRenamer
             {
                 if (!UpdateShader())
                 {
-                    Debug.Log("[ShaderGraphPropertyRename] Error while renaming shader properties.");
+                    Debug.Log("[ShaderGraph Property Renamer] Error while renaming shader properties.");
                     //AssetDatabase.StopAssetEditing();
                     EditorUtility.ClearProgressBar();
 
@@ -780,12 +780,12 @@ namespace ShaderGraphPropertyRenamer
             {
                 EditorUtility.DisplayDialog("Error while editing shadergraph file",
                     "An error occured while editing the .shadergraph file.\nThe Operation has been cancelled.","Ok");
-                Debug.Log("[ShaderGraphPropertyRename]<color=red> Error:</color> Some property could not be found in the shadergraph file. It is probable that the file was modified externally, or that the shadergraph file layout has been modified.");
+                Debug.Log("[ShaderGraph Property Renamer]<color=red> Error:</color> Some property could not be found in the shadergraph file. It is probable that the file was modified externally, or that the shadergraph file layout has been modified.");
                 return false;
             }
             else
             {
-                Debug.Log("[ShaderGraphPropertyRename] Shader '"+m_shader.name+"' patched",m_shader);
+                Debug.Log("[ShaderGraph Property Renamer] Shader '"+m_shader.name+"' patched",m_shader);
             }
             
             
@@ -799,7 +799,7 @@ namespace ShaderGraphPropertyRenamer
             AssetDatabase.ImportAsset(oldShaderPath);
             m_shader = AssetDatabase.LoadAssetAtPath<Shader>(shaderPath);
             m_shaderOld = AssetDatabase.LoadAssetAtPath<Shader>(oldShaderPath);
-            //Debug.Log("[ShaderGraphPropertyRename] Shader patched.",m_shader);
+            //Debug.Log("[ShaderGraph Property Renamer] Shader patched.",m_shader);
             
 
             return true;
@@ -921,7 +921,7 @@ namespace ShaderGraphPropertyRenamer
                         }
                     }
                     
-                    Debug.Log("[ShaderGraphPropertyRename] Material '"+material.name+"' patched",material);
+                    Debug.Log("[ShaderGraph Property Renamer] Material '"+material.name+"' patched",material);
                     EditorUtility.SetDirty(material);
                     EditorUtility.DisplayProgressBar("Patching materials", string.Format("Patching material {0}/{1}:{2}",i,m_MaterialCount,material.name), (float)i/(float)m_MaterialCount);
                 }
@@ -969,7 +969,7 @@ namespace ShaderGraphPropertyRenamer
             if(ModifiedPropertyCount>0)
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(m_shaderOld));
             
-            //Debug.Log("[ShaderGraphPropertyRename] "+m_MaterialList.Count+" Materials patched.");
+            //Debug.Log("[ShaderGraph Property Renamer] "+m_MaterialList.Count+" Materials patched.");
             
             AssetDatabase.StopAssetEditing();
             AssetDatabase.SaveAssets();
@@ -1104,7 +1104,7 @@ namespace ShaderGraphPropertyRenamer
                     , "Proceed anyway","Cancel");
                 if (warningPrompt)
                 {
-                    Debug.Log("[ShaderGraphPropertyRename] Operation canceled by the user");
+                    Debug.Log("[ShaderGraph Property Renamer] Operation canceled by the user");
                     return false;
                 }
             }
@@ -1116,7 +1116,7 @@ namespace ShaderGraphPropertyRenamer
                     "It is highly recommended to fix those issues before proceeding", "Proceed anyway","Cancel");
                 if (warningPrompt)
                 {
-                    Debug.Log("[ShaderGraphPropertyRename] Operation canceled by the user");
+                    Debug.Log("[ShaderGraph Property Renamer] Operation canceled by the user");
                     return false;
                 }
             }
@@ -1183,7 +1183,7 @@ namespace ShaderGraphPropertyRenamer
                     m_VersionControlUpdate.assetList.Count/2+" assets will be checked out. Proceed ?", "CheckOut Files","Cancel");
                 if (warningPrompt)
                 {
-                    Debug.Log("[ShaderGraphPropertyRename] Check Out canceled by the user");
+                    Debug.Log("[ShaderGraph Property Renamer] Check Out canceled by the user");
                     return false;
                 }
             }
@@ -1230,7 +1230,7 @@ namespace ShaderGraphPropertyRenamer
                     m_VersionControlUpdate.assetList.Count/2+" assets will be locked. Proceed ?", "Lock Files","Cancel");
                 if (warningPrompt)
                 {
-                    Debug.Log("[ShaderGraphPropertyRename] File Lock canceled by the user");
+                    Debug.Log("[ShaderGraph Property Renamer] File Lock canceled by the user");
                     return false;
                 }
             }
@@ -1268,7 +1268,7 @@ namespace ShaderGraphPropertyRenamer
                     "Some of the assets are locked remotely, the operation is therefor canceled.\n" +
                     "You can find those files with the File List window.\n" +
                     "This issue needs to be fixed to proceed.", "Cancel");
-                Debug.Log("[ShaderGraphPropertyRename] Operation cancelled: Some assets are locked remotely.");
+                Debug.Log("[ShaderGraph Property Renamer] Operation cancelled: Some assets are locked remotely.");
                 return false;
             }
 
