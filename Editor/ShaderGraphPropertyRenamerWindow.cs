@@ -102,7 +102,7 @@ namespace ShaderGraphPropertyRenamer
 
         
 
-        [MenuItem("Tools/ShaderGraph Property Renamer")]
+        [MenuItem("A2/Windows/ShaderGraph Property Renamer")]
         public static void ShowWindow()
         {
             ShaderGraphPropertyRenamerWindow window = CreateInstance<ShaderGraphPropertyRenamerWindow>();
