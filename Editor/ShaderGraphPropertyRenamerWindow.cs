@@ -597,6 +597,8 @@ namespace ShaderGraphPropertyRenamer
                 {
                     Debug.Log("[ShaderGraphPropertyRename] Error while renaming shader properties.");
                     //AssetDatabase.StopAssetEditing();
+                    EditorUtility.ClearProgressBar();
+
                     return;
                 }
                 
@@ -609,6 +611,7 @@ namespace ShaderGraphPropertyRenamer
             //Cleanup temp shader
 
             UpdatePropertyList(true);
+            EditorUtility.ClearProgressBar();
         }
 
 
@@ -797,6 +800,7 @@ namespace ShaderGraphPropertyRenamer
             m_shader = AssetDatabase.LoadAssetAtPath<Shader>(shaderPath);
             m_shaderOld = AssetDatabase.LoadAssetAtPath<Shader>(oldShaderPath);
             //Debug.Log("[ShaderGraphPropertyRename] Shader patched.",m_shader);
+            
 
             return true;
         }
