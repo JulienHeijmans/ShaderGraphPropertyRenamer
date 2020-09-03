@@ -3,9 +3,12 @@
 *Adds a new window accessible in the menu Tools>ShaderGraph Property renamer*
 *This tool allows the user to change reference names and display name of shader graph properties.*
 
-*An additional window allows the user to see all files that would be affected by the change (So, the shader and every material using this shader) as well as their version control status*
-*Some buttons allows the user to CheckOut and/or lock all the files*
-*If some files are locked remotely by another user the operation will be canceled.*
+**File management and version control:**
+An additional window allows the user to see all files that would be affected by the change (So, the shader and every material using this shader) as well as their version control status.
+Some buttons allows the user to CheckOut and/or lock all the files
+If some files are locked remotely by another user the operation will be canceled.
+
+**Note:** File locking is only available with Unity 2020.2 or later.
 
 *The following operations are done when the changes are applied:*
 * The ShaderGraph file will be patched, replacing the properties reference names/display names.
