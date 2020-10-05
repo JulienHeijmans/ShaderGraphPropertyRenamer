@@ -276,14 +276,15 @@ namespace ShaderGraphPropertyRenamer
             var propertyCount = m_shader.GetPropertyCount();
             for (int i = 0; i < propertyCount; i++)
             {
-                bool isHidden= m_shader.GetPropertyFlags(i)==ShaderPropertyFlags.HideInInspector;
+                ShaderPropertyFlags flags = m_shader.GetPropertyFlags(i);
+                bool isHidden = flags.HasFlag(ShaderPropertyFlags.HideInInspector);
                 bool isKeyword = false;
                 bool isToggle = false;
                 List<string> keywordValues=null;
-                foreach (var attr in m_shader.GetPropertyAttributes(i))
+                string[] attrs = m_shader.GetPropertyAttributes(i);
+                foreach (var attr in attrs)
                 {
                     //Debug.Log(m_shader.GetPropertyName(i)+" - attr="+attr);
-
                     if (attr.Contains("Keyword"))
                     {
                         isKeyword = true;
@@ -293,15 +294,25 @@ namespace ShaderGraphPropertyRenamer
                         keywordValues = valuesArr.ToList();
                     }
                     if (attr.Contains("Toggle"))
+                    {
                         isToggle = true;
                     }
+                }
                 //Debug.Log(m_shader.GetPropertyName(i)+" - "+m_shader.GetPropertyType(i)+" - isKeyword="+isKeyword+" - "+m_shader.GetPropertyFlags(i));
-                var newProperty = new ShaderPropertyRename(m_shader.GetPropertyName(i),
-                    m_shader.GetPropertyDescription(i), m_shader.GetPropertyType(i),isKeyword,isHidden,isToggle,keywordValues);
+                var newProperty = new ShaderPropertyRename(
+                    m_shader.GetPropertyName(i),
+                    m_shader.GetPropertyDescription(i),
+                    m_shader.GetPropertyType(i),
+                    isKeyword,
+                    isHidden,
+                    isToggle,
+                    keywordValues);
                 m_ShaderProperties.Add(newProperty);
                 if(!isHidden)
+                {
                     m_ShaderPropertiesNoHidden.Add(newProperty);
                 }
+            }
 
             if (!clear)
             {
