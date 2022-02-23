@@ -276,14 +276,15 @@ namespace ShaderGraphPropertyRenamer
             var propertyCount = m_shader.GetPropertyCount();
             for (int i = 0; i < propertyCount; i++)
             {
-                bool isHidden= m_shader.GetPropertyFlags(i)==ShaderPropertyFlags.HideInInspector;
+                ShaderPropertyFlags flags = m_shader.GetPropertyFlags(i);
+                bool isHidden = flags.HasFlag(ShaderPropertyFlags.HideInInspector);
                 bool isKeyword = false;
                 bool isToggle = false;
                 List<string> keywordValues=null;
-                foreach (var attr in m_shader.GetPropertyAttributes(i))
+                string[] attrs = m_shader.GetPropertyAttributes(i);
+                foreach (var attr in attrs)
                 {
                     //Debug.Log(m_shader.GetPropertyName(i)+" - attr="+attr);
-
                     if (attr.Contains("Keyword"))
                     {
                         isKeyword = true;
@@ -293,14 +294,24 @@ namespace ShaderGraphPropertyRenamer
                         keywordValues = valuesArr.ToList();
                     }
                     if (attr.Contains("Toggle"))
+                    {
                         isToggle = true;
+                    }
                 }
                 //Debug.Log(m_shader.GetPropertyName(i)+" - "+m_shader.GetPropertyType(i)+" - isKeyword="+isKeyword+" - "+m_shader.GetPropertyFlags(i));
-                var newProperty = new ShaderPropertyRename(m_shader.GetPropertyName(i),
-                    m_shader.GetPropertyDescription(i), m_shader.GetPropertyType(i),isKeyword,isHidden,isToggle,keywordValues);
+                var newProperty = new ShaderPropertyRename(
+                    m_shader.GetPropertyName(i),
+                    m_shader.GetPropertyDescription(i),
+                    m_shader.GetPropertyType(i),
+                    isKeyword,
+                    isHidden,
+                    isToggle,
+                    keywordValues);
                 m_ShaderProperties.Add(newProperty);
                 if(!isHidden)
+                {
                     m_ShaderPropertiesNoHidden.Add(newProperty);
+                }
             }
 
             if (!clear)
@@ -805,7 +816,92 @@ namespace ShaderGraphPropertyRenamer
             return true;
         }
         
-        
+        private void UpdateMaterialKeywords(Material material, ShaderPropertyRename property)
+        {
+            if (property.isEnumKeyword)
+            {
+                //Remove old keyword
+                {
+                    //material.DisableKeyword(property.Reference.ToUpper() + "_" + property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
+                    // Expanding original one-liner above and checking for errors.
+                    if (!material.HasProperty(property.NewReference))
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Remove old: Material {material.name} does not have property {property.NewReference}.");
+                        return;
+                    }
+                    float newIndexFloat = material.GetFloat(property.NewReference);
+                    int newIndex = Convert.ToInt32(newIndexFloat);
+                    if (newIndex < 0 || newIndex >= property.keywordValues.Count)
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Remove old: Material {material.name} property {property.NewReference} index {newIndex} out of range [0, {property.keywordValues.Count}).");
+                        return;
+                    }
+                    string newShortKeyword = property.keywordValues[newIndex];
+                    string newFullKeyword = property.Reference.ToUpper() + "_" + newShortKeyword;
+                    material.DisableKeyword(newFullKeyword);
+                }
+
+                //Remove default value keyword that gets added automatically for some reason. Maybe by the material upgrader ?
+                {
+                    //material.DisableKeyword(property.NewReference.ToUpper() + "_" + property.keywordValues[Convert.ToInt32(material.shader.GetPropertyDefaultFloatValue(material.shader.FindPropertyIndex(property.NewReference.ToUpper())))]);
+                    // Expanding original one-liner above and checking for errors.
+                    string newNameUpper = property.NewReference.ToUpper();
+                    int propIndex = material.shader.FindPropertyIndex(newNameUpper);
+                    int propCount = material.shader.GetPropertyCount();
+                    if (propIndex < 0 || propIndex >= propCount)
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Remove default: Material {material.name} shader property {newNameUpper} index {propIndex} out of range [0, {propCount}).");
+                        return;
+                    }
+                    float newDefaultValue = material.shader.GetPropertyDefaultFloatValue(propIndex);
+                    int newDefaultValueInt = Convert.ToInt32(newDefaultValue);
+                    if (newDefaultValueInt < 0 || newDefaultValueInt >= property.keywordValues.Count)
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Remove default: Material {material.name} keyword {newNameUpper} index {newDefaultValueInt} out of range [0, {property.keywordValues.Count}).");
+                        return;
+                    }
+                    string newShortKeyword = property.keywordValues[newDefaultValueInt];
+                    string newFullKeyword = newNameUpper + "_" + newShortKeyword;
+                    material.DisableKeyword(newFullKeyword);
+                }
+
+                //Enable the correct value.
+                {
+                    //material.EnableKeyword(property.NewReference.ToUpper() + "_" + property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
+                    // Expanding original one-liner above and checking for errors.
+                    if (!material.HasProperty(property.NewReference))
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Enable: Material {material.name} does not have property {property.NewReference}.");
+                        return;
+                    }
+                    float newValue = material.GetFloat(property.NewReference);
+                    int newIndex = Convert.ToInt32(newValue);
+                    if (newIndex < 0 || newIndex >= property.keywordValues.Count)
+                    {
+                        Debug.LogError($"[ShaderGraph Property Renamer] Enable: Material {material.name} property {property.NewReference} index {newIndex} out of range [0, {property.keywordValues.Count}).");
+                        return;
+                    }
+                    string newShortKeyword = property.keywordValues[newIndex];
+                    string newFullKeyword = property.NewReference.ToUpper() + "_" + newShortKeyword;
+                    material.EnableKeyword(newFullKeyword);
+                }
+            }
+            else if (property.isToggle)
+            {
+                if (!material.HasProperty(property.NewReference))
+                {
+                    Debug.LogError($"[ShaderGraph Property Renamer] Toggle: Material {material.name} does not have property {property.NewReference}");
+                    return;
+                }
+                float propValue = material.GetFloat(property.NewReference);
+                if (propValue == 1.0f)
+                {
+                    material.DisableKeyword(property.Reference.ToUpper() + "_ON");
+                    material.EnableKeyword(property.NewReference.ToUpper() + "_ON");
+                }
+            }
+        }
+
         private void UpdateMaterials(bool clearAllUnusedProperties)
         {
             AssetDatabase.StartAssetEditing();
@@ -850,9 +946,7 @@ namespace ShaderGraphPropertyRenamer
 
                 for (int i = 0; i < m_MaterialList.Count; i++)
                 {
-                    
-                    
-                    var material = m_MaterialList[i];
+                    Material material = m_MaterialList[i];
                     material.shader = m_shaderOld;
 //                    Dictionary<string,float> floatValue=new Dictionary<string, float>();
 //                    Dictionary<string,Color> colorValue=new Dictionary<string, Color>();
@@ -897,28 +991,7 @@ namespace ShaderGraphPropertyRenamer
 //                                material.SetTexture(property.NewReference,textureValue[property.Reference]);
 //                                break;
 //                        }
-                        
-                        //Fix material keywords
-                        if (property.isEnumKeyword) //EnumKeyword
-                        {
-                            //Debug.Log("RemoveKeyword:"+property.Reference+"_"+property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
-                            //Debug.Log("AddKeyword:"+property.NewReference+"_"+property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
-                            //Remove old keyword
-                            material.DisableKeyword(property.Reference.ToUpper()+"_"+property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
-                            //Remove default value keyword that gets added automatically for some reason. Maybe by the material upgrader ?
-                            material.DisableKeyword(property.NewReference.ToUpper()+"_"+property.keywordValues[Convert.ToInt32(material.shader.GetPropertyDefaultFloatValue(material.shader.FindPropertyIndex(property.NewReference.ToUpper())))]);
-                            //Enable the correct value.
-                            material.EnableKeyword(property.NewReference.ToUpper()+"_"+property.keywordValues[Convert.ToInt32(material.GetFloat(property.NewReference))]);
-                        }
-                        else if (property.isToggle)
-                        {
-                            if (material.GetFloat(property.NewReference) == 1)
-                            {
-                                material.DisableKeyword(property.Reference.ToUpper()+"_ON");
-                                material.EnableKeyword(property.NewReference.ToUpper()+"_ON");
-                            }
-                            
-                        }
+                        UpdateMaterialKeywords(material, property);
                     }
                     
                     Debug.Log("[ShaderGraph Property Renamer] Material '"+material.name+"' patched",material);
